@@ -13,12 +13,13 @@ class DocumentUploader extends Component
 {
     use WithFileUploads;
 
-    #[Validate(['file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:10240'])]
     public $file;
 
-    public function upload()
+    public function saveDocument()
     {
-        $this->validate();
+        $this->validate([
+            'file' => 'required|file|mimes:jpg,jpeg,png,pdf|max:10240',
+        ]);
 
         // Menyimpan file ke storage lokal (private)
         $path = $this->file->store("documents/" . Auth::id(), 'local');
