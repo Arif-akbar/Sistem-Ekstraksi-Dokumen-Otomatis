@@ -29,6 +29,7 @@ class OpenAIExtractorService implements DocumentExtractorInterface
             $base64Image = base64_encode($fileContent);
             $mimeType    = Storage::mimeType($document->file_path);
 
+            /* --- KODE ASLI (DIKOMENTARI UNTUK SIMULASI) ---
             $response = Http::withToken($this->apiKey)
                 ->timeout(60)
                 ->post($this->apiUrl, [
@@ -105,6 +106,27 @@ class OpenAIExtractorService implements DocumentExtractorInterface
             return [
                 'extracted' => $extracted,
                 'raw'       => $rawResponse,
+            ];
+            --- AKHIR KODE ASLI --- */
+
+            // --- KODE SIMULASI (MOCKING) ---
+            Log::info('Memulai simulasi ekstraksi dokumen...', ['document_id' => $document->id]);
+            
+            // Simulasi AI sedang "berpikir" selama 3 detik
+            sleep(3);
+
+            // Kembalikan data dummy keras (hardcoded)
+            return [
+                'extracted' => [
+                    'vendor_name'      => 'PT. Toko Maju Jaya (Data Simulasi)',
+                    'transaction_date' => date('Y-m-d'), // Tanggal hari ini
+                    'total_amount'     => 150000.00,
+                    'tax_amount'       => 15000.00,
+                ],
+                'raw' => [
+                    'status'  => 'simulasi',
+                    'message' => 'Ini adalah hasil simulasi tanpa koneksi ke OpenAI API.'
+                ],
             ];
 
         } catch (\Throwable $e) {

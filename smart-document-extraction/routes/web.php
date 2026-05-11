@@ -17,7 +17,7 @@ Route::view('profile', 'profile')
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/documents', [DocumentController::class, 'index'])->name('documents.index');
     Route::get('/documents/{document}', [DocumentController::class, 'show'])->name('documents.show');
-    Route::patch('/documents/{document}/validate', [DocumentController::class, 'validate'])->name('documents.validate');
+    Route::get('/documents/{document}/file', [DocumentController::class, 'serveFile'])->name('documents.file');
 });
 
 require __DIR__.'/auth.php';
