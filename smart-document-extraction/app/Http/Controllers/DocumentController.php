@@ -3,45 +3,55 @@
 namespace App\Http\Controllers;
 
 use App\Models\Document;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\View\View;
+use Illuminate\Support\Facades\Storage;
 
 class DocumentController extends Controller
 {
     /**
-     * Tampilkan daftar dokumen milik user yang login.
+     * Menampilkan halaman daftar dokumen.
      */
-    public function index(): View
+    public function index()
     {
         return view('documents.index');
     }
 
     /**
-     * Tampilkan detail satu dokumen beserta hasil ekstraksinya.
+     * Menampilkan halaman detail/validasi dokumen.
      */
-    public function show(Document $document): View
+    public function show(Document $document)
     {
         // Pastikan user hanya bisa melihat dokumen miliknya
-        abort_if($document->user_id !== Auth::id(), 403, 'Akses ditolak.');
-
-        $document->load(['extractedData', 'user']);
+        if ($document->user_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses ke dokumen ini.');
+        }
 
         return view('documents.show', compact('document'));
     }
 
     /**
-     * Konfirmasi hasil ekstraksi (ubah status dari 'needs_validation' ke 'completed').
+     * Menyajikan file secara aman (Secure File Server).
      */
-    public function validate(Document $document): RedirectResponse
+    public function serveFile(Document $document)
     {
-        abort_if($document->user_id !== Auth::id(), 403, 'Akses ditolak.');
-        abort_if($document->status !== 'needs_validation', 422, 'Dokumen tidak dalam status yang tepat untuk divalidasi.');
+        // Pastikan user hanya bisa mengakses file miliknya
+        if ($document->user_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses ke file ini.');
+        }
 
-        $document->update(['status' => 'completed']);
+        // Ambil path file dari storage private (local disk)
+        $filePath = $document->file_path;
 
-        return redirect()->route('documents.show', $document)
-            ->with('success', 'Data berhasil dikonfirmasi!');
+        // Pastikan file benar-benar ada di storage
+        if (!Storage::disk('local')->exists($filePath)) {
+            abort(404, 'File tidak ditemukan.');
+        }
+
+        // Dapatkan absolute path file
+        $absolutePath = Storage::disk('local')->path($filePath);
+
+        // Kembalikan response file
+        return response()->file($absolutePath);
     }
 }

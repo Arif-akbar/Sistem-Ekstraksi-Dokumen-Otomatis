@@ -17,7 +17,7 @@
     <div class="py-8">
         <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-6">
             {{-- Komponen Upload --}}
-            <livewire:documents.upload-document />
+            <livewire:documents.document-uploader />
 
             {{-- Komponen Daftar Dokumen --}}
             <livewire:documents.document-list />
